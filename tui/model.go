@@ -37,19 +37,13 @@ type Model struct {
 	textInput         *TextInputModel
 	textInputActive   bool
 	customServiceName string
-	pipelinesModel    *PipelinesModel
-	inPipelinesTab    bool
 }
-
-//Add connection to the API
 
 func InitialModel() Model {
 	dataLakes, err := listDataLakes()
 	if err != nil {
 		fmt.Println("Error listing data lakes:", err)
 	}
-
-	pipelinesModel := NewPipelinesModel(80, 24)
 
 	return Model{
 		// Start with the welcome screen when booting up the tool
@@ -67,7 +61,6 @@ func InitialModel() Model {
 		dataLakes:        dataLakes,
 		inQueryEditor:    false,
 		textInput:        newTextInput(),
-		pipelinesModel:   pipelinesModel,
 	}
 }
 

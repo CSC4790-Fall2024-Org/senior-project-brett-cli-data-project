@@ -2,8 +2,6 @@ package tui
 
 import (
 	"context"
-	"time"
-
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -15,11 +13,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.width = msg.Width
 		m.height = msg.Height
-
-		//Updates the pipeline tab model size
-		if m.pipelinesModel != nil {
-			m.pipelinesModel.SetSize(m.width, m.height)
-		}
 		return m, nil
 
 	case TextInputDoneMsg:
@@ -54,19 +47,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.scriptOutput = string(msg)
 		m.progressValue = 1.0
 		cmd := m.progress.SetPercent(1.0)
-		newPipeline := Pipeline{
-			Name:      m.inputs[0],
-			Status:    "Idle",
-			Healthy:   true,
-			Running:   false,
-			LastRun:   time.Now(), // Set the initial run time
-			Logs:      []string{"Pipeline Created."},
-			CronExpr:  "",
-			animation: []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"},
-			animIndex: 0,
-		}
-		m.pipelinesModel.AddPipeline(newPipeline)
-
 		return m, cmd
 
 	case scriptErrorMsg:
@@ -144,10 +124,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "a":
 				m.currentScreen = "about"
 			case "p":
-				m.inPipelinesTab = true
 				m.currentScreen = "pipelines"
-
-				return m, nil
 			case "ctrl+c", "ctrl+q":
 				return m, tea.Quit
 			case "c":
@@ -165,21 +142,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
-
-		if m.inPipelinesTab {
-			switch msg.String() {
-			case "esc", "q":
-				m.currentScreen = ""
-				m.state = "welcome"
-				m.inPipelinesTab = false
-				return m, nil
-			default:
-				var cmd tea.Cmd
-				m.pipelinesModel, cmd = m.pipelinesModel.Update(msg)
-				return m, cmd
-			}
-		}
-
 		// Handle data lake selection
 		if m.inDataLakeSelect {
 			switch msg.String() {
@@ -253,8 +215,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "p":
 			m.currentScreen = "pipelines"
-			m.inPipelinesTab = true
-
 			return m, nil
 
 		case "c":
