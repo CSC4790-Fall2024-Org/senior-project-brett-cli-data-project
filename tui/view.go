@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/common-nighthawk/go-figure"
 )
@@ -48,6 +49,11 @@ func (m Model) View() string {
 
 		return s
 	}
+
+	if m.inPipelinesTab {
+		return m.pipelinesModel.View()
+	}
+
 	if m.confirmReset {
 		s += "Are you sure you want to return to the welcome screen and discard unsaved changes? (y/n)"
 		return s
@@ -66,10 +72,10 @@ func (m Model) View() string {
 			s += "Press 'Esc' at any time to return to the welcome screen.\n"
 			s += "\nPress any key to return."
 		case "pipelines":
-			s += "Active Pipelines:\n"
-			s += "- Pipeline 1\n" // Hardcoded for now
-			s += "- Pipeline 2\n"
-			s += "\nPress any key to return."
+			if m.inPipelinesTab {
+				s += m.pipelinesModel.View()
+				return s
+			}
 		case "pipeline_created":
 			s += "Pipeline created successfully!\n"
 			s += fmt.Sprintf("Script output: %s\n", m.scriptOutput)
